@@ -1,9 +1,15 @@
 const sha256 = require('sha256');
+const currentNodeUrl = process.argv[3];
 function BlockChain() {
     //Will contain all mined blocks
     this.chain= [];
     //Will contain all transactions pending for the next block
     this.pendingTransactions = [];
+
+    //the URL of where a node is running
+    this.currentNodeUrl = currentNodeUrl;
+    this. networkNodes = [];
+    
     //arbitrary values can be used for the genesis block, all others cannot
     this.createNewBlock(100, '0','0');    
 }
