@@ -59,7 +59,7 @@ app.post('/register-and-broadcast-node', function(req, res) {
             json: true
         }
 
-        regNodesPromises.push(rp(requestOptions.toString()));
+        regNodesPromises.push(rp(requestOptions));
     });
 
     Promise.all(regNodesPromises)
@@ -67,11 +67,11 @@ app.post('/register-and-broadcast-node', function(req, res) {
         const bulkRegisterOptions = {
             uri: newNodeUrl + '/register-nodes-bulk',
             method: 'POST',
-            body: { allNetworkNodes: [ ...bitcoin.networkNodes, bitcoin.currentNodeUrl ],
-            json: true }
+            body: { allNetworkNodes: [ ...bitcoin.networkNodes, bitcoin.currentNodeUrl ] },
+            json: true 
         }
 
-        return rp(bulkRegisterOptions.toString()) ;
+        return rp(bulkRegisterOptions) ;
     }, error => {
         console.log('Error occurred with Bulk Register. Error: ' + error);
     })
