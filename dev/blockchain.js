@@ -62,9 +62,39 @@ BlockChain.prototype.proofOfWork = function(previousBlockHash, currentBlockData)
     //increment nonce until the first 4 digits in the hash are '0000' then returns the nonce
     while(hash.substring(0,4) !== '0000') {
         nonce++;
-        hash= this.hashBlock(previousBlockHash, currentBlockData, nonce)
+        hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
     }
     return nonce;
+}
+
+//consensus function - longest block algo
+BlockChain.prototype.chainIsValid = function(blockchain) {
+    let validChain = true;
+
+    for(let i=1; i < blockchain.length; i++) {
+        const currentBlock = blockchain[i];
+        const prevBlock = blockchain[i - 1];
+        const blockHash = this.hashBlock(prevBlock['hash'], { transactions: currentBlock['transactions'], index: currentBlock['index'] }, currentBlock['nonce']);
+        
+        //if not valid
+        if(blockHash.substring(0,4) !== '0000') {
+            validChain = false;
+        }
+        if(currentBlock['previousBlockHash'] !== prevBlock['hash']){
+            validChain = false;
+        }
+    }
+    //check if genesis block is correct
+    const genesisBlock = blockchain[0];
+    const correctNonce = genesisBlock['nonce'] === 100;
+    const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0';
+    const correctHash = genesisBlock['hash'] === '0';
+    const correctTransactions = genesisBlock['transactions'].length === 0;
+    if(!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions) {
+        validChain = false;
+    }
+
+    return validChain;
 }
 
 module.exports = BlockChain;
