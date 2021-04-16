@@ -86,13 +86,40 @@ app.get('/mine', function (req, res) {
             json: true
         }
         return rp(requestOptions);
+    }, error => {
+        console.log(`Error with mine request: ${error}`)
     })
     .then(data =>{
     res.json({
             note: "New block mined & broadcast successfully",
             block: newBlock
         });
+    }, error =>{
+        console.log(`Error with mine broadcast request: ${error}`)
     })
+});
+
+app.post('/receive-new-block', function(req,res) {
+    const newBlock = req.body.newBlock;
+    const lastBlock = bitcoin.getLastBlock();
+    //check if new block has correct previous hash as the rest of the chain, and correct index
+    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+    const correctIndex = lastBlock['index'] + 1 === newBlock['index'];
+    if(correctHash && correctIndex) {
+        //add block to chain and clear pending transactions
+        bitcoin.chain.push(newBlock);
+        bitcoin.pendingTransactions = [];
+        res.json({
+            note: 'New block received and accepted.',
+            newBlock: newBlock
+        });
+    } else {
+        res.json({
+            note: 'New block rejected.',
+            newBlock: newBlock
+        });
+    }
+
 });
 
 // register a node and broadcast it to the network
